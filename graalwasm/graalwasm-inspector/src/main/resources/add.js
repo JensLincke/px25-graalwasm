@@ -13,7 +13,7 @@ export function add(a, b) {
 /**
  * Default export: Initializes the WebAssembly module.
  * Called from Java using invokeMember("default", wasmContent)
- * @param {WebAssembly.Module | Response | ArrayBuffer | Promise<Response>} moduleOrResponse
+ * @param {Uint8Array} wasmBytes
  * @returns {Promise<any>}
  */
 export default async function init(wasmBytes) {
