@@ -16,13 +16,8 @@ export function add(a, b) {
  * @param {WebAssembly.Module | Response | ArrayBuffer | Promise<Response>} moduleOrResponse
  * @returns {Promise<any>}
  */
-export default async function init(moduleOrResponse) {
-    // If it's a Response or Promise, resolve and compile it
-    const source = moduleOrResponse instanceof WebAssembly.Module
-        ? moduleOrResponse
-        : await moduleOrResponse;
-
-    const { instance } = await WebAssembly.instantiate(source, {});
+export default async function init(wasmBytes) {
+    const { instance } = await WebAssembly.instantiate(wasmBytes, {});
     wasm = instance.exports;
 
     return wasm;
