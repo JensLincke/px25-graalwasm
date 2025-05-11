@@ -1,12 +1,5 @@
 let wasm;
 
-// strip everything that is not absolutely necessary!
-// it would be good to generate all this boilerplate code for java.
-// maybe we can just skip all the js. Figure out what WebAssembly.instantiate is making possible.
-// look if we can call webassembly directly?
-// look whether there is something callable (call target) in WebAssembly
-// do it without javascript
-
 /**
  * Adds two numbers using the WebAssembly module.
  * @param {number} a
@@ -31,11 +24,6 @@ export default async function init(moduleOrResponse) {
 
     const { instance } = await WebAssembly.instantiate(source, {});
     wasm = instance.exports;
-
-    // Optionally call __wbindgen_start if it's part of the module
-    if (wasm.__wbindgen_start) {
-        wasm.__wbindgen_start();
-    }
 
     return wasm;
 }

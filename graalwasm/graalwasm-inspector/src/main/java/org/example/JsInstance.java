@@ -8,7 +8,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 
-public class JsInstance {
+public class JsInstance implements WasmCommand{
 
     JsInstance() throws IOException {
         var add_js = getClass()
@@ -23,7 +23,7 @@ public class JsInstance {
         createJSInstance(sharedEngine, addSource, addWasmBytes);
     }
 
-    void createJSInstance(Engine engine, Source photonSource, byte[] wasmBytes)
+    void createJSInstance(Engine engine, Source jsSource, byte[] wasmBytes)
     {
         Context context = Context.newBuilder("js", "wasm")
                 .engine(engine)
@@ -33,19 +33,16 @@ public class JsInstance {
                 .option("js.esm-eval-returns-exports", "true")
                 .build();
 
-        // Get Uint8Array class from JavaScript
         Value uint8Array = context.eval("js", "Uint8Array");
-        // Load Photon module and initialize with wasm content
-        Value photonModule = context.eval(photonSource);
-        // Create Uint8Array with wasm bytes
+        wasmModule = context.eval(jsSource);
         Value wasmContent = uint8Array.newInstance(wasmBytes);
-        // Initialize Photon module with wasm content
-        photonModule.invokeMember("default", wasmContent);
-        var aa = photonModule.hasMember("listWasmExports");
-        var ks = photonModule.getMemberKeys();
-        var res = photonModule.invokeMember("add", 3,4).asInt();
+        wasmModule.invokeMember("default", wasmContent);
+    }
 
-        System.out.println("Result from js: " + res);
-        var str = "123;";
+    private Value wasmModule;
+
+    @Override
+    public int add(int a, int b) {
+        return wasmModule.invokeMember("add", a, b).asInt();
     }
 }
