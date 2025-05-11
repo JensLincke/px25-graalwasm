@@ -24,3 +24,13 @@ mkdir build && cd build
 emcmake cmake ..
 make all -j9
 ```
+
+## Generating wat files
+
+A .wat (WebAssembly Text format) file is the human-readable representation of a WebAssembly (.wasm) binary module. It provides a textual format for developers to read, inspect, or debug the internals of a Wasm module more easily.
+
+To generate a .wat file from the .wasm file, we can use the following tool: https://manpages.ubuntu.com/manpages/focal/man1/wasm2wat.1.html 
+
+```bash
+wasm2wat build/wasm_cpp.wasm -o wasm_cpp.wat
+```

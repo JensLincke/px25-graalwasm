@@ -7,9 +7,7 @@ extern "C" {
 #endif
 
 // A simple function to add two integers
-WASM_CPP_EXPORT int add(int a, int b) {
-    return a + b;
-}
+__attribute__((used)) int add(int a, int b);
 
 #if defined(__cplusplus)
 }
