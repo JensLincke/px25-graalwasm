@@ -11,7 +11,7 @@ import java.net.URL;
 public class DirectWasm implements WasmCommand {
     DirectWasm() {
         try (Context context = Context.create()) {
-            URL wasmFile = new ClassPathResource("add.wasm").getURL();
+            URL wasmFile = new ClassPathResource("wasm_cpp.wasm").getURL();
             String moduleName = "main";
             context.eval(Source.newBuilder("wasm", wasmFile).name(moduleName).build());
             wasmModule = context.getBindings("wasm").getMember(moduleName);

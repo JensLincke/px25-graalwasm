@@ -17,7 +17,7 @@ public class JsInstance implements WasmCommand{
         assert add_js != null;
         var aba = new ClassPathResource("add.js").getURL();
         Source addSource = Source.newBuilder("js", aba).mimeType("application/javascript+module").build();
-        byte[] addWasmBytes = new ClassPathResource("add.wasm").getContentAsByteArray();
+        byte[] addWasmBytes = new ClassPathResource("wasm_cpp.wasm").getContentAsByteArray();
         Engine sharedEngine = Engine.create();
 
         createJSInstance(sharedEngine, addSource, addWasmBytes);
