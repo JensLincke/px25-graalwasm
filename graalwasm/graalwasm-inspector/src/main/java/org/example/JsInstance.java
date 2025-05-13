@@ -7,10 +7,12 @@ import org.graalvm.polyglot.Value;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class JsInstance implements WasmCommand{
+public class JsInstance implements WasmCommand {
 
-    JsInstance() throws IOException {
+    public JsInstance() throws IOException {
         var add_js = getClass()
                 .getClassLoader()
                 .getResource("add.js");
@@ -44,5 +46,15 @@ public class JsInstance implements WasmCommand{
     @Override
     public int add(int a, int b) {
         return wasmModule.invokeMember("add", a, b).asInt();
+    }
+
+    @Override
+    public List<String> listExports() {
+        Value smth = wasmModule.invokeMember("listExports");
+        List<String> exportNames = new ArrayList<>();
+        for (int i = 0; i < smth.getArraySize(); i++) {
+            exportNames.add(smth.getArrayElement(i).asString());
+        }
+        return exportNames;
     }
 }

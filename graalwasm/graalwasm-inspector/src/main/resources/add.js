@@ -22,3 +22,14 @@ export default async function init(wasmBytes) {
 
     return wasm;
 }
+
+/**
+ * Returns the exported keys from the loaded WebAssembly module.
+ * @returns {string[]} Array of export names
+ */
+export function listExports() {
+    if (!wasm) {
+        throw new Error("WASM module not initialized. Call the default init function first.");
+    }
+    return Object.keys(wasm);
+}

@@ -1,7 +1,0 @@
-Regarding the js wrapper file.
-
-1. Strip everything that is not absolutely necessary! - done, now the js file is minimal.
-2. It would be good to generate all this boilerplate code for java.
-3. Maybe we can just skip all the js. Figure out what WebAssembly.instantiate is making possible.
-4. Look if we can call webassembly directly?
-5. Look whether there is something callable (call target) in WebAssembly
