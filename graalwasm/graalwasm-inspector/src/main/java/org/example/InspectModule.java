@@ -15,6 +15,8 @@ import java.util.function.Consumer;
 
 public class InspectModule {
 
+    /// This code was taken from
+    /// https://github.com/oracle/graal/blob/master/wasm/src/org.graalvm.wasm.test/src/org/graalvm/wasm/test/WasmJsApiSuite.java#L122
     public static void runTest(Consumer<Context.Builder> options, Consumer<WasmContext> testCase, byte[] binaryWithExports) throws IOException {
         final Context.Builder contextBuilder = Context.newBuilder(WasmLanguage.ID);
         contextBuilder.option("wasm.Builtins", "testutil:testutil"); // preloading the testuil
