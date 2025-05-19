@@ -54,6 +54,19 @@
         </dependency>
 
         <dependency>
+            <groupId>org.graalvm.wasm</groupId>
+            <artifactId>wasm-language</artifactId>
+            <version>${graal.languages.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.graalvm.wasm</groupId>
+            <artifactId>wasm-community</artifactId>
+            <version>${graal.languages.version}</version>
+            <type>pom</type>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
