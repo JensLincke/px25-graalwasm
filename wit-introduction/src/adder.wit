@@ -1,0 +1,26 @@
+package docs:adder@0.1.0;
+
+interface simple {
+    add-int: func(x: u32, y: u32) -> u32;
+    add-str: func(x: f32, y: f32) -> f32;
+    add-double: func(x: f64, y: f64) -> f64;
+    concat: func(x: string, y: string) -> string;
+    reverse: func(x: string) -> string;
+
+    enum role {
+        first,
+        second,
+        third,
+    }
+
+    record customer {
+        id: u64,
+        name: string,
+        activity: option<list<u8>>,
+        job-type: role,
+    }
+}
+
+world adder {
+    export simple;
+}

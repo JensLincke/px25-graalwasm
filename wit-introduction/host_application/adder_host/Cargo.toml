@@ -1,0 +1,8 @@
+[package]
+name = "adder_host"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+wasmtime = { version = "33.0.0", features = ["component-model"] }
+wasmtime-wasi = "33.0.0"
