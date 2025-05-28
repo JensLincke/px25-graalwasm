@@ -8,7 +8,6 @@
 4. Check what WIT is enabling in this case. There are multiple languages, does WIT hide details about memory layout?
 5. Try converting WIT to Java and Java to WIT.
 
-
 ## General remarks
 1. Add methods for string reverse, concat.
 2. Add a point class
