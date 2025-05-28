@@ -143,3 +143,17 @@ world multi-function-device {
     import error-reporter;
 }
 ```
+
+**P1 (Reactor Modules)**
+
+- Introduces the **reactor execution model** (`-mexec-model=reactor`) and **interface types** in the core Wasm module format.
+- Lets you embed high-level types (strings, records, lists) and have the compiler generate the **Canonical ABI** glue so a host can marshal data without manual serialization .
+- **No metadata** about worlds or named instances—just one Wasm module with interface-typed imports/exports.
+
+**P2 (Full Components)**
+
+- Builds on P1 by wrapping one or more reactor modules into a **self-describing package**:
+    1. **World definitions** (from WIT) in custom sections
+    2. **Named import instances** (e.g. WASI, host-defined APIs)
+    3. A **default export world** tying everything together
+- Enables a Component-Model–aware runtime (e.g. Wasmtime) to **auto-link** imports, discover dependencies, compose multiple components, and perform versioning.

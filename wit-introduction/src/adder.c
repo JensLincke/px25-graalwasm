@@ -5,9 +5,6 @@
 
 // Exported Functions from `docs:adder/simple@0.1.0`
 
-
-
-
 __attribute__((__weak__, __export_name__("cabi_post_docs:adder/simple@0.1.0#concat")))
 void __wasm_export_exports_docs_adder_simple_concat_post_return(uint8_t * arg0) {
   if ((*((size_t*) (arg0 + sizeof(void*)))) > 0) {
