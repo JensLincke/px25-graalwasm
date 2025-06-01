@@ -5,6 +5,9 @@
 
 // Exported Functions from `docs:adder/simple@0.1.0`
 
+
+
+
 __attribute__((__weak__, __export_name__("cabi_post_docs:adder/simple@0.1.0#concat")))
 void __wasm_export_exports_docs_adder_simple_concat_post_return(uint8_t * arg0) {
   if ((*((size_t*) (arg0 + sizeof(void*)))) > 0) {
@@ -16,6 +19,21 @@ __attribute__((__weak__, __export_name__("cabi_post_docs:adder/simple@0.1.0#reve
 void __wasm_export_exports_docs_adder_simple_reverse_post_return(uint8_t * arg0) {
   if ((*((size_t*) (arg0 + sizeof(void*)))) > 0) {
     free(*((uint8_t **) (arg0 + 0)));
+  }
+}
+
+
+
+__attribute__((__weak__, __export_name__("cabi_post_docs:adder/simple@0.1.0#scale-points")))
+void __wasm_export_exports_docs_adder_simple_scale_points_post_return(uint8_t * arg0) {
+  size_t len = *((size_t*) (arg0 + sizeof(void*)));
+  if (len > 0) {
+    uint8_t *ptr = *((uint8_t **) (arg0 + 0));
+    for (size_t i = 0; i < len; i++) {
+      uint8_t *base = ptr + i * 8;
+      (void) base;
+    }
+    free(ptr);
   }
 }
 
@@ -35,25 +53,14 @@ static uint8_t RET_AREA[(2*sizeof(void*))];
 
 // Helper Functions
 
-void adder_list_u8_free(adder_list_u8_t *ptr) {
+void exports_docs_adder_simple_list_point_free(exports_docs_adder_simple_list_point_t *ptr) {
   size_t list_len = ptr->len;
   if (list_len > 0) {
-    uint8_t *list_ptr = ptr->ptr;
+    exports_docs_adder_simple_point_t *list_ptr = ptr->ptr;
     for (size_t i = 0; i < list_len; i++) {
     }
     free(list_ptr);
   }
-}
-
-void adder_option_list_u8_free(adder_option_list_u8_t *ptr) {
-  if (ptr->is_some) {
-    adder_list_u8_free(&ptr->val);
-  }
-}
-
-void exports_docs_adder_simple_customer_free(exports_docs_adder_simple_customer_t *ptr) {
-  adder_string_free(&ptr->name);
-  adder_option_list_u8_free(&ptr->activity);
 }
 
 void adder_string_set(adder_string_t *ret, const char*s) {
@@ -112,6 +119,53 @@ uint8_t * __wasm_export_exports_docs_adder_simple_reverse(uint8_t * arg, size_t 
   adder_string_t arg1 = (adder_string_t) { (uint8_t*)(arg), (arg0) };
   adder_string_t ret;
   exports_docs_adder_simple_reverse(&arg1, &ret);
+  uint8_t *ptr = (uint8_t *) &RET_AREA;
+  *((size_t*)(ptr + sizeof(void*))) = (ret).len;
+  *((uint8_t **)(ptr + 0)) = (uint8_t *) (ret).ptr;
+  return ptr;
+}
+
+__attribute__((__export_name__("docs:adder/simple@0.1.0#add-point")))
+uint8_t * __wasm_export_exports_docs_adder_simple_add_point(int32_t arg, int32_t arg0, int32_t arg1, int32_t arg2) {
+  exports_docs_adder_simple_point_t arg3 = (exports_docs_adder_simple_point_t) {
+    (uint32_t) (uint32_t) (arg),
+    (uint32_t) (uint32_t) (arg0),
+  };
+  exports_docs_adder_simple_point_t arg4 = (exports_docs_adder_simple_point_t) {
+    (uint32_t) (uint32_t) (arg1),
+    (uint32_t) (uint32_t) (arg2),
+  };
+  exports_docs_adder_simple_point_t ret;
+  exports_docs_adder_simple_add_point(&arg3, &arg4, &ret);
+  uint8_t *ptr = (uint8_t *) &RET_AREA;
+  *((int32_t*)(ptr + 0)) = (int32_t) ((ret).x);
+  *((int32_t*)(ptr + 4)) = (int32_t) ((ret).y);
+  return ptr;
+}
+
+__attribute__((__export_name__("docs:adder/simple@0.1.0#sub-point")))
+uint8_t * __wasm_export_exports_docs_adder_simple_sub_point(int32_t arg, int32_t arg0, int32_t arg1, int32_t arg2) {
+  exports_docs_adder_simple_point_t arg3 = (exports_docs_adder_simple_point_t) {
+    (uint32_t) (uint32_t) (arg),
+    (uint32_t) (uint32_t) (arg0),
+  };
+  exports_docs_adder_simple_point_t arg4 = (exports_docs_adder_simple_point_t) {
+    (uint32_t) (uint32_t) (arg1),
+    (uint32_t) (uint32_t) (arg2),
+  };
+  exports_docs_adder_simple_point_t ret;
+  exports_docs_adder_simple_sub_point(&arg3, &arg4, &ret);
+  uint8_t *ptr = (uint8_t *) &RET_AREA;
+  *((int32_t*)(ptr + 0)) = (int32_t) ((ret).x);
+  *((int32_t*)(ptr + 4)) = (int32_t) ((ret).y);
+  return ptr;
+}
+
+__attribute__((__export_name__("docs:adder/simple@0.1.0#scale-points")))
+uint8_t * __wasm_export_exports_docs_adder_simple_scale_points(uint8_t * arg, size_t arg0, int32_t arg1) {
+  exports_docs_adder_simple_list_point_t arg2 = (exports_docs_adder_simple_list_point_t) { (exports_docs_adder_simple_point_t*)(arg), (arg0) };
+  exports_docs_adder_simple_list_point_t ret;
+  exports_docs_adder_simple_scale_points(&arg2, (uint32_t) (arg1), &ret);
   uint8_t *ptr = (uint8_t *) &RET_AREA;
   *((size_t*)(ptr + sizeof(void*))) = (ret).len;
   *((uint8_t **)(ptr + 0)) = (uint8_t *) (ret).ptr;

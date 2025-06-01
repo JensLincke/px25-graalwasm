@@ -14,28 +14,15 @@ typedef struct adder_string_t {
   size_t len;
 } adder_string_t;
 
-typedef uint8_t exports_docs_adder_simple_role_t;
-
-#define EXPORTS_DOCS_ADDER_SIMPLE_ROLE_FIRST 0
-#define EXPORTS_DOCS_ADDER_SIMPLE_ROLE_SECOND 1
-#define EXPORTS_DOCS_ADDER_SIMPLE_ROLE_THIRD 2
+typedef struct exports_docs_adder_simple_point_t {
+  uint32_t   x;
+  uint32_t   y;
+} exports_docs_adder_simple_point_t;
 
 typedef struct {
-  uint8_t *ptr;
+  exports_docs_adder_simple_point_t *ptr;
   size_t len;
-} adder_list_u8_t;
-
-typedef struct {
-  bool is_some;
-  adder_list_u8_t val;
-} adder_option_list_u8_t;
-
-typedef struct exports_docs_adder_simple_customer_t {
-  uint64_t   id;
-  adder_string_t   name;
-  adder_option_list_u8_t   activity;
-  exports_docs_adder_simple_role_t   job_type;
-} exports_docs_adder_simple_customer_t;
+} exports_docs_adder_simple_list_point_t;
 
 // Exported Functions from `docs:adder/simple@0.1.0`
 uint32_t exports_docs_adder_simple_add_int(uint32_t x, uint32_t y);
@@ -43,14 +30,13 @@ float exports_docs_adder_simple_add_str(float x, float y);
 double exports_docs_adder_simple_add_double(double x, double y);
 void exports_docs_adder_simple_concat(adder_string_t *x, adder_string_t *y, adder_string_t *ret);
 void exports_docs_adder_simple_reverse(adder_string_t *x, adder_string_t *ret);
+void exports_docs_adder_simple_add_point(exports_docs_adder_simple_point_t *x, exports_docs_adder_simple_point_t *y, exports_docs_adder_simple_point_t *ret);
+void exports_docs_adder_simple_sub_point(exports_docs_adder_simple_point_t *x, exports_docs_adder_simple_point_t *y, exports_docs_adder_simple_point_t *ret);
+void exports_docs_adder_simple_scale_points(exports_docs_adder_simple_list_point_t *x, uint32_t scalar, exports_docs_adder_simple_list_point_t *ret);
 
 // Helper Functions
 
-void adder_list_u8_free(adder_list_u8_t *ptr);
-
-void adder_option_list_u8_free(adder_option_list_u8_t *ptr);
-
-void exports_docs_adder_simple_customer_free(exports_docs_adder_simple_customer_t *ptr);
+void exports_docs_adder_simple_list_point_free(exports_docs_adder_simple_list_point_t *ptr);
 
 // Transfers ownership of `s` into the string `ret`
 void adder_string_set(adder_string_t *ret, const char*s);

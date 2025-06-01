@@ -45,3 +45,28 @@ void exports_docs_adder_simple_reverse(adder_string_t *x, adder_string_t *ret) {
     ret->ptr = buf;
     ret->len = n;
 }
+
+void exports_docs_adder_simple_add_point(exports_docs_adder_simple_point_t *x, exports_docs_adder_simple_point_t *y, exports_docs_adder_simple_point_t *ret) {
+    ret->x = x->x + y->x;
+    ret->y = x->y + y->y;
+}
+
+void exports_docs_adder_simple_sub_point(exports_docs_adder_simple_point_t *x, exports_docs_adder_simple_point_t *y, exports_docs_adder_simple_point_t *ret) {
+    ret->x = x->x - y->x;
+    ret->y = x->y - y->y;
+}
+
+void exports_docs_adder_simple_scale_points(exports_docs_adder_simple_list_point_t *x, uint32_t scalar, exports_docs_adder_simple_list_point_t *ret) {
+    const size_t n = x->len;
+    ret->ptr = static_cast<exports_docs_adder_simple_point_t *>(malloc(n * sizeof(exports_docs_adder_simple_point_t)));
+    if (!ret->ptr) {
+        ret->len = 0;
+        return;
+    }
+    ret->len = n;
+
+    for (size_t i = 0; i < n; i++) {
+        ret->ptr[i].x = x->ptr[i].x * scalar;
+        ret->ptr[i].y = x->ptr[i].y * scalar;
+    }
+}

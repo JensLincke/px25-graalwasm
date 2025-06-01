@@ -6,6 +6,15 @@ interface simple {
     add-double: func(x: f64, y: f64) -> f64;
     concat: func(x: string, y: string) -> string;
     reverse: func(x: string) -> string;
+
+    record point {
+        x: u32,
+        y: u32,
+    }
+
+    add-point: func(x: point, y: point) -> point;
+    sub-point: func(x: point, y: point) -> point;
+    scale-points: func(x: list<point>, scalar: u32) -> list<point>;
 }
 
 world adder {
