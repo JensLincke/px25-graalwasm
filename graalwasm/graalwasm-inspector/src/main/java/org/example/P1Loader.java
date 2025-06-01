@@ -16,8 +16,14 @@ public class P1Loader {
     private final Value wasmModule;
     private final Value memory;
     private final Value realloc;
-    public final Value reverse;
-    public final Value concat;
+    private final Value reverse;
+    private final Value concat;
+    private final Value scaleImpl;
+
+    private static final int POINT_SIZE = 4 + 4;
+
+    public record Point(int x, int y) {
+    }
 
     public P1Loader() throws IOException {
         Context context = Context.newBuilder().option("wasm.Builtins", "wasi_snapshot_preview1").allowHostAccess(HostAccess.ALL).build();
@@ -30,7 +36,20 @@ public class P1Loader {
         realloc = wasmModule.getMember("cabi_realloc");
         reverse = wasmModule.getMember("exports_docs_adder_simple_reverse");
         concat = wasmModule.getMember("exports_docs_adder_simple_concat");
+        scaleImpl = wasmModule.getMember("exports_docs_adder_simple_scale_points");
+    }
 
+    public void dump(int ptr, int len) {
+        if (!memory.hasArrayElements()) {
+            System.err.println("Wasm memory does not support array elements");
+            return;
+        }
+        System.out.printf("MEM[%d..%d):", ptr, ptr + len);
+        for (int i = 0; i < len; i++) {
+            int b = memory.getArrayElement(ptr + i).asInt() & 0xFF;
+            System.out.printf(" %02x", b);
+        }
+        System.out.println();
     }
 
     int allocate(int size) {
@@ -53,96 +72,151 @@ public class P1Loader {
     void writeBytes(int ptr, byte[] data) {
         assert memory.hasArrayElements();
         for (int i = 0; i < data.length; i++) {
-            var valToWrite = data[i] & 0xFF;
-            memory.setArrayElement(ptr + i, valToWrite);
+            // we write data[i] at index ptr + i
+            memory.setArrayElement(ptr + i, (byte) (data[i] & 0xFF));
         }
     }
 
-    record StrBuf(int ptr, int len) {
+    record StringStruct(int ptr, int len) {
     }
 
-    public StrBuf writeString(String s) {
+    /// Method that will write the java string into Wasm memory and then
+    /// will return a pointer to the memory location where the string was written
+    /// along with the string length.
+    private StringStruct writeStringToWasm(String s) {
         byte[] bs = s.getBytes(StandardCharsets.UTF_8);
         int ptr = allocate(bs.length);
         writeBytes(ptr, bs);
-        return new StrBuf(ptr, bs.length);
+        return new StringStruct(ptr, bs.length);
     }
 
-    public void dump(int ptr, int len) {
-        System.out.printf("MEM[%d..%d):", ptr, ptr+len);
-        for (int i = 0; i < len; i++) {
-            int b = memory.getArrayElement(ptr + i).asInt() & 0xFF;
-            System.out.printf(" %02x", b);
-        }
-        System.out.println();
-    }
-
-    public String readString(StrBuf sb) {
+    public String readStringFromBuffer(StringStruct sb) {
         byte[] bs = readBytes(sb.ptr, sb.len);
         return new String(bs, StandardCharsets.UTF_8);
     }
 
     public String concat(String first, String second) {
 
-        StrBuf inFirst = writeString(first);
-        StrBuf inSecond = writeString(second);
+        int firstCString = createCString(first);
+        int secondCString = createCString(second);
+        int resCString = allocate(8);
 
-        int firstStruct = allocate(8);
-        int secondStruct = allocate(8);
-        int resStruct = allocate(8);
+        concat.executeVoid(firstCString, secondCString, resCString);
 
-        ByteBuffer firstBuffer = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-        firstBuffer.putInt(inFirst.ptr).putInt(inFirst.len());
-        writeBytes(firstStruct, firstBuffer.array());
-        ByteBuffer secondBuffer = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-        secondBuffer.putInt(inSecond.ptr).putInt(inSecond.len());
-        writeBytes(secondStruct, secondBuffer.array());
+        String result = fromCString(resCString);
 
-        ByteBuffer thirdBuffer = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
+        free(resCString);
+        free(firstCString);
+        free(secondCString);
 
-        concat.executeVoid(firstStruct, secondStruct, resStruct);
-
-        byte[] buf = readBytes(resStruct, 8);
-        ByteBuffer resBuffer = ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN);
-        int outPtr = resBuffer.getInt(0);
-        int outLen = resBuffer.getInt(4);
-        System.out.printf("concat wrote → ptr=%d, len=%d%n", outPtr, outLen);
-        String result = readString(new StrBuf(outPtr, outLen));
         return result;
+    }
+
+    /// Method that will create a Java string from a CString
+    /// parameter: strPtr is a pointer to the memory location
+    /// where the CString is.
+    private String fromCString(int strPtr) {
+        // read all the bytes from the memory location where the pointer
+        // is pointing to
+        byte[] buf = readBytes(strPtr, 8);
+
+        // reading the little endian wasm memory.
+        ByteBuffer outputBufer = ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN);
+        int outPtr = outputBufer.getInt(0);
+        int outLen = outputBufer.getInt(4);
+
+        var res = readStringFromBuffer(new StringStruct(outPtr, outLen));
+        free(outPtr);
+        return res;
+    }
+
+    /// Method that will create a CString from a java string
+    private int createCString(String s) {
+        // first we want to write the java string in wasm memory!
+        StringStruct inStr = writeStringToWasm(s);
+
+        // allocate struct for string,
+        // since the string struct in wasm is a uint8_t* pointer and a size_t
+        // remember that sizeof(uint8_t) = 1 but sizeof(uint8_t*) = 4.
+        // we have to allocate 8 bytes,
+        // inStruct is an address pointing to an 8 byte wasm memory block.
+        int inStruct = allocate(8);
+
+        // pack (ptr,len) into the inStruct (c representation).
+        // the bytebuffer will make sure that the data is laid out in
+        // the linear order that wasm expects it to be.
+        ByteBuffer inputBuffer = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
+        inputBuffer.putInt(inStr.ptr).putInt(inStr.len);
+
+        // write inputBuffer.array into inStruct
+        writeBytes(inStruct, inputBuffer.array());
+
+        return inStruct;
     }
 
     public String reverse(String s) {
-        // 1) copy input into Wasm memory
-        StrBuf inStr = writeString(s);
+        int inStruct = createCString(s);
 
-        // 2) allocate struct for input and output (8 bytes each)
-        int inStruct  = allocate(8);
+        // allocate output string.
         int outStruct = allocate(8);
 
-        // 3) pack (ptr,len) into the in‐struct
-        ByteBuffer ib = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-        ib.putInt(inStr.ptr).putInt(inStr.len);
-        writeBytes(inStruct, ib.array());
-
-        // 4) call the C implementation
+        // call the C implementation
         reverse.executeVoid(inStruct, outStruct);
+        // now the outStruct should hold the result
+        String result = fromCString(outStruct);
 
-        // 5) dump and unpack the out‐struct
-        byte[] buf = readBytes(outStruct, 8);
-        ByteBuffer ob = ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN);
-        int outPtr = ob.getInt(0), outLen = ob.getInt(4);
-        System.out.printf("reverse wrote → ptr=%d, len=%d%n", outPtr, outLen);
-
-        // 6) read the reversed UTF-8 bytes
-        String result = readString(new StrBuf(outPtr, outLen));
-
-        // 7) free all allocated blocks
-        free(outPtr);
         free(outStruct);
         free(inStruct);
-        free(inStr.ptr);
 
         return result;
     }
 
+    public Point[] scalePoints(Point[] pts, int scalar) {
+        int count = pts.length;
+        int dataSize = count * POINT_SIZE;
+        int dataPtr = allocate(dataSize);
+
+        ByteBuffer tmp = ByteBuffer.allocate(POINT_SIZE).order(ByteOrder.LITTLE_ENDIAN);
+        for (int i = 0; i < count; i++) {
+            tmp.clear();
+            tmp.putInt(pts[i].x);
+            tmp.putInt(pts[i].y);
+            writeBytes(dataPtr + i * POINT_SIZE, tmp.array());
+        }
+
+        // now dataPtr contains the base address of the point list in wasm memory!
+
+        int inListStruct = allocate(8);
+        ByteBuffer pointListBuffer = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
+        pointListBuffer.putInt(dataPtr);
+        pointListBuffer.putInt(count);
+        writeBytes(inListStruct, pointListBuffer.array());
+
+        // now inListStruct is ready to be given to c, we have constructed a Struct with linear memory.
+
+        int outListStruct = allocate(8);
+
+        scaleImpl.executeVoid(inListStruct, scalar, outListStruct);
+
+        byte[] outBytes = readBytes(outListStruct, 8);
+        ByteBuffer outputPointListBuffer = ByteBuffer.wrap(outBytes).order(ByteOrder.LITTLE_ENDIAN);
+        int outDataPtr = outputPointListBuffer.getInt(0);
+        int outLen = outputPointListBuffer.getInt(4);
+
+        Point[] result = new Point[outLen];
+        for (int i = 0; i < outLen; i++) {
+            byte[] pBytes = readBytes(outDataPtr + i * POINT_SIZE, POINT_SIZE);
+            ByteBuffer pb = ByteBuffer.wrap(pBytes).order(ByteOrder.LITTLE_ENDIAN);
+            int x = pb.getInt(0);
+            int y = pb.getInt(4);
+            result[i] = new Point(x, y);
+        }
+
+        free(outDataPtr);
+        free(outListStruct);
+        free(inListStruct);
+        free(dataPtr);
+
+        return result;
+    }
 }
