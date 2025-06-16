@@ -137,7 +137,7 @@ public class P1Loader {
 
         // allocate struct for string,
         // since the string struct in wasm is a uint8_t* pointer and a size_t
-        // remember that sizeof(uint8_t) = 1 but sizeof(uint8_t*) = 4.
+        // remember that sizeof(uint8_t) = 1 b ut sizeof(uint8_t*) = 4.
         // we have to allocate 8 bytes,
         // inStruct is an address pointing to an 8 byte wasm memory block.
         int inStruct = allocate(8);

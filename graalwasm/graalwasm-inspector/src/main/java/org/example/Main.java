@@ -1,5 +1,10 @@
 package org.example;
 
+import org.graalvm.polyglot.Context;
+import org.springframework.core.io.ClassPathResource;
+
+import java.net.URL;
+
 public class Main {
     public static void main(String[] args) throws Exception {
         var p1loader = new P1Loader();
@@ -18,6 +23,14 @@ public class Main {
         var scaledPoints = p1loader.scalePoints(inputPoints, 5);
         for (var point : scaledPoints) {
             System.out.println(point);
+        }
+
+        try (Context context = Context.newBuilder("wasm")
+                .option("wasm.Builtins", "wasi_snapshot_preview1")
+                .build()) {
+            var simpleBinding = new SimpleBindings(new ClassPathResource("adder2.wasm").getURL(), context);
+            var bind = simpleBinding.reverse(fir);
+            System.out.println(bind);
         }
     }
 }
