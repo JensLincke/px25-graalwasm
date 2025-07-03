@@ -154,6 +154,31 @@ public class P1Loader {
         return inStruct;
     }
 
+    public String reverse2(String x) {
+        // Lowering parameter 'x' to wasm memory
+        int temp0 = allocate(8);
+        byte[] temp1 = x.getBytes(StandardCharsets.UTF_8);
+        int temp2 = allocate(temp1.length);
+        writeBytes(temp2, temp1);
+        ByteBuffer temp3 = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
+        temp3.putInt(temp2).putInt(temp1.length);
+        writeBytes(temp0, temp3.array());
+        int result_ptr = allocate(8);
+        wasmModule.getMember("exports_docs_adder_simple_reverse").executeVoid(temp0, result_ptr);
+        // Lifting result from wasm memory
+        byte[] temp5 = readBytes(result_ptr, 8);
+        ByteBuffer temp6 = ByteBuffer.wrap(temp5).order(ByteOrder.LITTLE_ENDIAN);
+        int temp7 = temp6.getInt(0);
+        int temp8 = temp6.getInt(4);
+        byte[] temp9 = readBytes(temp7, temp8);
+        String temp4 = new String(temp9, StandardCharsets.UTF_8);
+        free(temp7); // Free the string content memory allocated by Wasm
+        free(temp2);
+        free(temp0);
+
+        return temp4;
+    }
+
     public String reverse(String s) {
         int inStruct = createCString(s);
 

@@ -31,6 +31,12 @@ make adder -j16 # this will create the p1 wasm module
 make adder_component -j16 # this will convert the p1 module to a p2
 ```
 
+Alternatively one can also just do this:
+
+```asm
+/opt/wasi-sdk/bin/clang --target=wasm32-unknown-wasi -O3 -nostartfiles -Wl,--no-entry -mexec-model=reactor adder.c implementation.cpp adder_component_type.o -Wl,--export-all -o adder2.wasm
+```
+
 ## Run
 
 ```bash
@@ -76,7 +82,7 @@ A WIT file contains one or more **interfaces** or **worlds**. An interface or wo
 7. list<> - denotes an ordered sequence of values of type T
 8. option<> - for any type T, the option may or may not contain that value. Similar to std::optional in c++
 9. result<,> for any types T,E the result may contain one or the other but not both. Similar to std::variant in c++
-10. tuples - ordere fixed length sequence of values of specified types
+10. tuples - ordered fixed length sequence of values of specified types
 
 ## User defined types in WIT
 

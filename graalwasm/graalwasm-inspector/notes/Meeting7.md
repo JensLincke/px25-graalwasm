@@ -5,6 +5,8 @@
 3. Work with lists of primitives as next step.
 4. Add an average function, give list of integers from java and return a list of results (average, sum).
 
+## Presentation
+
 Write down lessons learned.
 
 1. Recreating the function signature. 

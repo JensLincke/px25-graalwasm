@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cstring>
+#include <numeric>
 
 #include "adder.h"
 
@@ -7,12 +8,42 @@ uint32_t exports_docs_adder_simple_add_int(uint32_t x, uint32_t y) {
     return x + y;
 }
 
-float exports_docs_adder_simple_add_str(float x, float y) {
+float exports_docs_adder_simple_add_float(float x, float y) {
     return x + y;
 }
 
 double exports_docs_adder_simple_add_double(double x, double y) {
     return x + y;
+}
+
+void exports_docs_adder_simple_get_statistics_list_int(adder_list_list_u32_t *x, adder_list_f32_t *ret) {
+
+}
+
+void exports_docs_adder_simple_get_statistics_int(adder_list_u32_t *x, adder_list_f32_t *ret) {
+    const size_t n = x->len;
+    if (n == 0) {
+        ret->ptr = nullptr;
+        ret->len = 0;
+        return;
+    }
+
+    constexpr int result_count = 3;
+    ret->ptr = static_cast<float *>(malloc(result_count * sizeof(float)));
+    if (!ret->ptr) {
+        ret->len = 0;
+        return;
+    }
+
+    ret->len = result_count;
+    long long sum = 0;
+    for (size_t i = 0; i < n; i++) {
+        sum += x->ptr[i];
+    }
+    ret->ptr[0] = static_cast<float>(sum);
+    ret->ptr[1] = static_cast<float>(static_cast<double>(sum) / n);
+    const auto min = *std::min_element(x->ptr, x->ptr + n);
+    ret->ptr[2] = static_cast<float>(min);
 }
 
 void exports_docs_adder_simple_concat(adder_string_t *x, adder_string_t *y, adder_string_t *ret) {
@@ -68,5 +99,6 @@ void exports_docs_adder_simple_scale_points(exports_docs_adder_simple_list_point
     for (size_t i = 0; i < n; i++) {
         ret->ptr[i].x = x->ptr[i].x * scalar;
         ret->ptr[i].y = x->ptr[i].y * scalar;
+        ret->ptr[i].z = x->ptr[i].z * scalar;
     }
 }
