@@ -1,0 +1,26 @@
+package docs:adder@0.1.0;
+
+interface simple {
+    add-int: func(x: u32, y: u32) -> u32;
+    add-float: func(x: f32, y: f32) -> f32;
+    add-double: func(x: f64, y: f64) -> f64;
+    concat: func(x: string, y: string) -> string;
+    reverse: func(x: string) -> string;
+
+    record point {
+        x: u32,
+        y: u32,
+        z: f64,
+    }
+
+    add-point: func(x: point, y: point) -> point;
+    sub-point: func(x: point, y: point) -> point;
+    scale-points: func(x: list<point>, scalar: u32) -> list<point>;
+
+    get-statistics-int: func(x: list<u32>) -> list<f32>;
+    get-statistics-list-int: func(x: list<list<u32>>) -> list<f32>;
+}
+
+world adder {
+    export simple;
+}

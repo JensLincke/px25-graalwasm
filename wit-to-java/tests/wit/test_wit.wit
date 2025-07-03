@@ -1,0 +1,34 @@
+package docs:adder@0.1.0;
+
+interface simple {
+    record point {
+        x: u32,
+        y: u32,
+        z: f64,
+    }
+
+    record big-struct {
+        x: f64,
+        y: f64,
+        z: f64,
+        w: u64,
+        v: u64,
+    }
+
+    record inner {
+        a: s32,
+      }
+
+    record outer {
+      b: u64,
+      c: inner,
+      d: f64,
+    }
+
+    type list-point = list<point>;
+    scale-points: func(x: list<point>, scalar: u32) -> list<point>;
+}
+
+world adder {
+    export simple;
+}
