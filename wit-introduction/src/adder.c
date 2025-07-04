@@ -37,21 +37,30 @@ void __wasm_export_exports_docs_adder_simple_scale_points_post_return(uint8_t * 
   }
 }
 
-__attribute__((__weak__, __export_name__("cabi_post_docs:adder/simple@0.1.0#get-statistics-int")))
-void __wasm_export_exports_docs_adder_simple_get_statistics_int_post_return(uint8_t * arg0) {
-  size_t len = *((size_t*) (arg0 + sizeof(void*)));
-  if (len > 0) {
-    uint8_t *ptr = *((uint8_t **) (arg0 + 0));
-    for (size_t i = 0; i < len; i++) {
-      uint8_t *base = ptr + i * 4;
+__attribute__((__weak__, __export_name__("cabi_post_docs:adder/simple@0.1.0#scale-points-list-of-list")))
+void __wasm_export_exports_docs_adder_simple_scale_points_list_of_list_post_return(uint8_t * arg0) {
+  size_t len0 = *((size_t*) (arg0 + sizeof(void*)));
+  if (len0 > 0) {
+    uint8_t *ptr1 = *((uint8_t **) (arg0 + 0));
+    for (size_t i2 = 0; i2 < len0; i2++) {
+      uint8_t *base = ptr1 + i2 * (2*sizeof(void*));
       (void) base;
+      size_t len = *((size_t*) (base + sizeof(void*)));
+      if (len > 0) {
+        uint8_t *ptr = *((uint8_t **) (base + 0));
+        for (size_t i = 0; i < len; i++) {
+          uint8_t *base = ptr + i * 16;
+          (void) base;
+        }
+        free(ptr);
+      }
     }
-    free(ptr);
+    free(ptr1);
   }
 }
 
-__attribute__((__weak__, __export_name__("cabi_post_docs:adder/simple@0.1.0#get-statistics-list-int")))
-void __wasm_export_exports_docs_adder_simple_get_statistics_list_int_post_return(uint8_t * arg0) {
+__attribute__((__weak__, __export_name__("cabi_post_docs:adder/simple@0.1.0#get-statistics-int")))
+void __wasm_export_exports_docs_adder_simple_get_statistics_int_post_return(uint8_t * arg0) {
   size_t len = *((size_t*) (arg0 + sizeof(void*)));
   if (len > 0) {
     uint8_t *ptr = *((uint8_t **) (arg0 + 0));
@@ -89,6 +98,17 @@ void exports_docs_adder_simple_list_point_free(exports_docs_adder_simple_list_po
   }
 }
 
+void exports_docs_adder_simple_list_list_point_free(exports_docs_adder_simple_list_list_point_t *ptr) {
+  size_t list_len = ptr->len;
+  if (list_len > 0) {
+    exports_docs_adder_simple_list_point_t *list_ptr = ptr->ptr;
+    for (size_t i = 0; i < list_len; i++) {
+      exports_docs_adder_simple_list_point_free(&list_ptr[i]);
+    }
+    free(list_ptr);
+  }
+}
+
 void adder_list_u32_free(adder_list_u32_t *ptr) {
   size_t list_len = ptr->len;
   if (list_len > 0) {
@@ -104,17 +124,6 @@ void adder_list_f32_free(adder_list_f32_t *ptr) {
   if (list_len > 0) {
     float *list_ptr = ptr->ptr;
     for (size_t i = 0; i < list_len; i++) {
-    }
-    free(list_ptr);
-  }
-}
-
-void adder_list_list_u32_free(adder_list_list_u32_t *ptr) {
-  size_t list_len = ptr->len;
-  if (list_len > 0) {
-    adder_list_u32_t *list_ptr = ptr->ptr;
-    for (size_t i = 0; i < list_len; i++) {
-      adder_list_u32_free(&list_ptr[i]);
     }
     free(list_ptr);
   }
@@ -235,22 +244,22 @@ uint8_t * __wasm_export_exports_docs_adder_simple_scale_points(uint8_t * arg, si
   return ptr;
 }
 
-__attribute__((__export_name__("docs:adder/simple@0.1.0#get-statistics-int")))
-uint8_t * __wasm_export_exports_docs_adder_simple_get_statistics_int(uint8_t * arg, size_t arg0) {
-  adder_list_u32_t arg1 = (adder_list_u32_t) { (uint32_t*)(arg), (arg0) };
-  adder_list_f32_t ret;
-  exports_docs_adder_simple_get_statistics_int(&arg1, &ret);
+__attribute__((__export_name__("docs:adder/simple@0.1.0#scale-points-list-of-list")))
+uint8_t * __wasm_export_exports_docs_adder_simple_scale_points_list_of_list(uint8_t * arg, size_t arg0, int32_t arg1) {
+  exports_docs_adder_simple_list_list_point_t arg2 = (exports_docs_adder_simple_list_list_point_t) { (exports_docs_adder_simple_list_point_t*)(arg), (arg0) };
+  exports_docs_adder_simple_list_list_point_t ret;
+  exports_docs_adder_simple_scale_points_list_of_list(&arg2, (uint32_t) (arg1), &ret);
   uint8_t *ptr = (uint8_t *) &RET_AREA;
   *((size_t*)(ptr + sizeof(void*))) = (ret).len;
   *((uint8_t **)(ptr + 0)) = (uint8_t *) (ret).ptr;
   return ptr;
 }
 
-__attribute__((__export_name__("docs:adder/simple@0.1.0#get-statistics-list-int")))
-uint8_t * __wasm_export_exports_docs_adder_simple_get_statistics_list_int(uint8_t * arg, size_t arg0) {
-  adder_list_list_u32_t arg1 = (adder_list_list_u32_t) { (adder_list_u32_t*)(arg), (arg0) };
+__attribute__((__export_name__("docs:adder/simple@0.1.0#get-statistics-int")))
+uint8_t * __wasm_export_exports_docs_adder_simple_get_statistics_int(uint8_t * arg, size_t arg0) {
+  adder_list_u32_t arg1 = (adder_list_u32_t) { (uint32_t*)(arg), (arg0) };
   adder_list_f32_t ret;
-  exports_docs_adder_simple_get_statistics_list_int(&arg1, &ret);
+  exports_docs_adder_simple_get_statistics_int(&arg1, &ret);
   uint8_t *ptr = (uint8_t *) &RET_AREA;
   *((size_t*)(ptr + sizeof(void*))) = (ret).len;
   *((uint8_t **)(ptr + 0)) = (uint8_t *) (ret).ptr;

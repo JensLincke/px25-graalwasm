@@ -2,68 +2,69 @@ package org.example;
 
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.HostAccess;
-import org.graalvm.polyglot.Source;
-import org.graalvm.polyglot.io.ByteSequence;
-import org.springframework.core.io.ClassPathResource;
 
-import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 public class Main {
 
-    private void _p1Loader() throws IOException {
-        var p1loader = new P1Loader();
+    private static void testPrimitiveOperations(SimpleBindings simpleBinding) {
+        assert 5 == simpleBinding.addInt(2, 3);
+        assert 6.0 == simpleBinding.addFloat(2, 4);
+        assert 9.0 == simpleBinding.addDouble(4, 5);
+    }
+
+    private static void testStringOperation(SimpleBindings simpleBinding) {
         String fir = "hello";
         String sec = "world12345";
-        String res = p1loader.reverse(fir);
-        System.out.println(res);
-        String conc = p1loader.concat(fir, sec);
-        System.out.println("Concat: " + conc);
 
-        P1Loader.Point[] inputPoints = new P1Loader.Point[3];
-        inputPoints[0] = new P1Loader.Point(0, 0);
-        inputPoints[1] = new P1Loader.Point(1, 0);
-        inputPoints[2] = new P1Loader.Point(2, 0);
+        String reversed = simpleBinding.reverse(fir);
+        assert "olleh".equals(reversed);
 
-        var scaledPoints = p1loader.scalePoints(inputPoints, 5);
-        for (var point : scaledPoints) {
-            System.out.println(point);
-        }
+        String concat = simpleBinding.concat(fir, sec);
+        assert concat.equals("helloworld12345");
+    }
+
+    private static void testGetListStatistics(SimpleBindings simpleBinding) {
+        List<Integer> myNumbers = List.of(10, 20, 30, 40, 50);
+        var statistics = simpleBinding.getStatisticsInt(myNumbers);
+        assert statistics.get(0) == 150;
+        assert statistics.get(1) == 30;
+        assert statistics.get(2) == 10;
+    }
+
+    private static void testScaleListOfRecord(SimpleBindings simpleBinding) {
+        var scaledPoints = simpleBinding.scalePoints(
+                List.of(new SimpleBindings.Point(0, 0, 1),
+                        new SimpleBindings.Point(1, 2, 3.0),
+                        new SimpleBindings.Point(3, 5, 8)),
+                5);
+
+        assert scaledPoints.get(0).equals(new SimpleBindings.Point(0, 0, 6.0));
+        assert scaledPoints.get(1).equals(new SimpleBindings.Point(5, 10, 15.0));
+        assert scaledPoints.get(2).equals(new SimpleBindings.Point(15, 25, 40.0));
     }
 
     public static void main(String[] args) throws Exception {
-        try (Context context = Context.newBuilder("wasm").allowHostAccess(HostAccess.ALL)
+        try (Context context = Context.newBuilder("wasm")
+                .allowHostAccess(HostAccess.ALL)
                 .option("wasm.Builtins", "wasi_snapshot_preview1").build()) {
 
-            var wasmResource = new ClassPathResource("adder2.wasm").getURL();
-            byte[] wasmBytes = wasmResource.openStream().readAllBytes();
-            Source source = Source.newBuilder("wasm", ByteSequence.create(wasmBytes), "main").build();
-            context.eval(source);
+            var wasmRes = Main.class.getResource("/adder2.wasm");
+            assert wasmRes != null;
 
-            var simpleBinding = new SimpleBindings(wasmResource, context);
-            System.out.println(simpleBinding.addInt(2,3));
-            System.out.println(simpleBinding.addFloat(3,4));
-            System.out.println(simpleBinding.addDouble(4,5));
+            var simpleBinding = new SimpleBindings(wasmRes, context);
 
-            String fir = "hello";
-            String sec = "world12345";
-            String res = simpleBinding.reverse(fir);
-            System.out.println(res);
-            List<Integer> myNumbers = List.of(10, 20, 30, 40, 50);
-            var statistics = simpleBinding.getStatisticsInt2(myNumbers);
-            System.out.println("sum: " + statistics.get(0));
-            System.out.println("average: " + statistics.get(1));
-            System.out.println("min: " + statistics.get(2));
+            testPrimitiveOperations(simpleBinding);
+            testStringOperation(simpleBinding);
+            testGetListStatistics(simpleBinding);
+            testScaleListOfRecord(simpleBinding);
 
-            SimpleBindings.Point[] inputPoints = new SimpleBindings.Point[3];
-            inputPoints[0] = new SimpleBindings.Point(0, 0, 1);
-            inputPoints[1] = new SimpleBindings.Point(1, 2, 3.0);
-            inputPoints[2] = new SimpleBindings.Point(3, 5, 8);
+            SimpleBindings.Point firstPoint = new SimpleBindings.Point(30, 20, 60.0);
+            SimpleBindings.Point secondPoint = new SimpleBindings.Point(10, 8, 20.0);
+            System.out.println("Subtracting point structs: " + simpleBinding.subPoint(firstPoint, secondPoint));
+            System.out.println("Adding point structs: " + simpleBinding.addPoint(firstPoint, secondPoint));
 
-            var scaledPoints = simpleBinding.scalePoints(List.of(inputPoints), 5);
-            for (var point : scaledPoints) {
-                System.out.println("point: " + point);
-            }
         }
     }
 }

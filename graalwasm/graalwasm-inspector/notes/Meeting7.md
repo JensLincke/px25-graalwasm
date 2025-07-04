@@ -9,7 +9,7 @@
 
 Write down lessons learned.
 
-1. Recreating the function signature. 
+1. Recreating the function signature.
 2. Memory in Java to memory in wasm.
 3. First high level, then under the hood.
 4. Lessons learned along the way.

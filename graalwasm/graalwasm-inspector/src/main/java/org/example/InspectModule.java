@@ -90,9 +90,4 @@ public class InspectModule {
             }
         }, binaryWithExports);
     }
-
-    public InspectModule() throws IOException {
-        var aa = new ClassPathResource("wasm_cpp.wasm").getInputStream().readAllBytes();
-        testInstantiateWithExportTable(aa);
-    }
 }

@@ -16,9 +16,9 @@ interface simple {
     add-point: func(x: point, y: point) -> point;
     sub-point: func(x: point, y: point) -> point;
     scale-points: func(x: list<point>, scalar: u32) -> list<point>;
+    scale-points-list-of-list: func(x: list<list<point>>, scalar: u32) -> list<list<point>>;
 
     get-statistics-int: func(x: list<u32>) -> list<f32>;
-    get-statistics-list-int: func(x: list<list<u32>>) -> list<f32>;
 }
 
 world adder {

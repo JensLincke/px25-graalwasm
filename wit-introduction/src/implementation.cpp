@@ -1,4 +1,3 @@
-#include <cstdlib>
 #include <cstring>
 #include <numeric>
 
@@ -14,10 +13,6 @@ float exports_docs_adder_simple_add_float(float x, float y) {
 
 double exports_docs_adder_simple_add_double(double x, double y) {
     return x + y;
-}
-
-void exports_docs_adder_simple_get_statistics_list_int(adder_list_list_u32_t *x, adder_list_f32_t *ret) {
-
 }
 
 void exports_docs_adder_simple_get_statistics_int(adder_list_u32_t *x, adder_list_f32_t *ret) {
@@ -80,11 +75,13 @@ void exports_docs_adder_simple_reverse(adder_string_t *x, adder_string_t *ret) {
 void exports_docs_adder_simple_add_point(exports_docs_adder_simple_point_t *x, exports_docs_adder_simple_point_t *y, exports_docs_adder_simple_point_t *ret) {
     ret->x = x->x + y->x;
     ret->y = x->y + y->y;
+    ret->z = x->z + y->z;
 }
 
 void exports_docs_adder_simple_sub_point(exports_docs_adder_simple_point_t *x, exports_docs_adder_simple_point_t *y, exports_docs_adder_simple_point_t *ret) {
     ret->x = x->x - y->x;
     ret->y = x->y - y->y;
+    ret->z = x->z - y->z;
 }
 
 void exports_docs_adder_simple_scale_points(exports_docs_adder_simple_list_point_t *x, uint32_t scalar, exports_docs_adder_simple_list_point_t *ret) {
@@ -100,5 +97,19 @@ void exports_docs_adder_simple_scale_points(exports_docs_adder_simple_list_point
         ret->ptr[i].x = x->ptr[i].x * scalar;
         ret->ptr[i].y = x->ptr[i].y * scalar;
         ret->ptr[i].z = x->ptr[i].z * scalar;
+    }
+}
+
+void exports_docs_adder_simple_scale_points_list_of_list(exports_docs_adder_simple_list_list_point_t *x, uint32_t scalar, exports_docs_adder_simple_list_list_point_t *ret) {
+    const size_t input_length = x->len;
+    ret->ptr = static_cast<exports_docs_adder_simple_list_point_t *>(malloc(input_length * sizeof(exports_docs_adder_simple_list_list_point_t)));
+    if (!ret->ptr) {
+        ret->len = 0;
+        return;
+    }
+    ret->len = input_length;
+
+    for (int i = 0; i < input_length; i++) {
+        exports_docs_adder_simple_scale_points(&x->ptr[i], scalar, &ret->ptr[i]);
     }
 }
