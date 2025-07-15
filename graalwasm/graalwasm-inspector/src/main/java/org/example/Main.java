@@ -52,8 +52,6 @@ public class Main {
 
             var simpleBinding = new SimpleBindings(wasmRes, context);
 
-            simpleBinding.reverseString("aaaa");
-
             testPrimitiveOperations(simpleBinding);
             testStringOperation(simpleBinding);
             testGetListStatistics(simpleBinding);
