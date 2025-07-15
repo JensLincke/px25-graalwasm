@@ -15,7 +15,7 @@ public class Main {
         String fir = "hello";
         String sec = "world12345";
 
-        String reversed = simpleBinding.reverseString(fir);
+        String reversed = simpleBinding.reverse(fir);
         assert "olleh".equals(reversed);
 
         String concat = simpleBinding.concat(fir, sec);
