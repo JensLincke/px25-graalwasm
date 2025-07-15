@@ -1,10 +1,7 @@
 package org.example;
-
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.HostAccess;
-
 import java.util.List;
-import java.util.Objects;
 
 public class Main {
 
@@ -18,7 +15,7 @@ public class Main {
         String fir = "hello";
         String sec = "world12345";
 
-        String reversed = simpleBinding.reverse(fir);
+        String reversed = simpleBinding.reverseString(fir);
         assert "olleh".equals(reversed);
 
         String concat = simpleBinding.concat(fir, sec);
@@ -54,6 +51,8 @@ public class Main {
             assert wasmRes != null;
 
             var simpleBinding = new SimpleBindings(wasmRes, context);
+
+            simpleBinding.reverseString("aaaa");
 
             testPrimitiveOperations(simpleBinding);
             testStringOperation(simpleBinding);

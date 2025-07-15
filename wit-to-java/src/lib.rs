@@ -6,7 +6,7 @@ use std::path::Path;
 use wit_parser::{abi::{AbiVariant}, Function, Record, Resolve, Type, TypeDefKind, WorldItem, WorldKey};
 
 /// Represents the metadata for a function being generated.
-#[derive(Debug)]
+/// This has become a huge state blob now, would be good to refactor
 pub struct FunctionMetaData {
     pub java_method_name: String,
     // The prologue handles argument setup and lowering data to Wasm.
@@ -645,7 +645,7 @@ pub fn generate_function_java(resolve: &Resolve, pkg: &wit_parser::Package, inte
     )
 }
 
-pub fn run_generator(wit_path: &str, output_file: &str) -> Result<()> {
+pub fn run_generator(wit_path: &str, output_file: &str, package_name: &str) -> Result<()> {
     let mut resolve = Resolve::default();
     let pkg_id = resolve
         .push_path(Path::new(wit_path))
@@ -674,6 +674,9 @@ pub fn run_generator(wit_path: &str, output_file: &str) -> Result<()> {
         })
         .expect("Did not find any named interface exported from the world");
 
+    // maybe a small diagram to show the good point of using rust for wit parsing
+    // show the lower/lifting in highlighted code
+
     let interface = &resolve.interfaces[interface_id];
     println!(
         "Found interface '{}', generating bindings...",
@@ -681,27 +684,28 @@ pub fn run_generator(wit_path: &str, output_file: &str) -> Result<()> {
     );
 
     let mut java_code_buffer = String::new();
-    java_code_buffer.push_str(
-        r#"import org.graalvm.polyglot.*;
+    let class_name = Path::new(output_file)
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("DefaultBindings");
+
+    // Use the derived class_name in the boilerplate
+    let java_boilerplate = format!(
+        r#"package {package_name};
+import org.graalvm.polyglot.*;
 import org.graalvm.polyglot.io.ByteSequence;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 
-// You would need to define public record classes for each record in your WIT.
-// For example:
-// public record Point(int x, int y, double z) {}
-
-public class SimpleBindings {
+public class {class_name} {{
     private final Value wasmModule;
     private final Value memory;
     private final Value cabi_realloc;
 
-    public SimpleBindings(URL wasmResource, Context context) throws IOException {
+    public {class_name}(URL wasmResource, Context context) throws IOException {{
         byte[] wasmBytes = wasmResource.openStream().readAllBytes();
         Source source = Source.newBuilder("wasm", ByteSequence.create(wasmBytes), "main").build();
         context.eval(source);
@@ -709,31 +713,33 @@ public class SimpleBindings {
         this.wasmModule = context.getBindings("wasm").getMember("main");
         this.memory = wasmModule.getMember("memory");
         this.cabi_realloc = wasmModule.getMember("cabi_realloc");
-    }
+    }}
 
-    private int allocate(int size, int alignment) {
+    private int allocate(int size, int alignment) {{
         return cabi_realloc.execute(0, 0, alignment, size).asInt();
-    }
+    }}
 
-    private void free(int ptr) {
+    private void free(int ptr) {{
         cabi_realloc.execute(ptr, 0, 1, 0);
-    }
+    }}
 
-    private void writeBytes(int ptr, byte[] data) {
-        for (int i = 0; i < data.length; i++) {
+    private void writeBytes(int ptr, byte[] data) {{
+        for (int i = 0; i < data.length; i++) {{
              memory.setArrayElement(ptr + i, data[i]);
-         }
-    }
+         }}
+    }}
 
-    private byte[] readBytes(int ptr, int len) {
+    private byte[] readBytes(int ptr, int len) {{
          byte[] data = new byte[len];
-         for (int i = 0; i < len; i++) {
+         for (int i = 0; i < len; i++) {{
              data[i] = memory.getArrayElement(ptr + i).asByte();
-         }
+         }}
          return data;
-    }
+    }}
 "#,
+        class_name = class_name
     );
+    java_code_buffer.push_str(java_boilerplate.as_str());
 
     for func in interface.functions.values() {
         java_code_buffer.push_str(&generate_function_java(
@@ -751,3 +757,4 @@ public class SimpleBindings {
 
     Ok(())
 }
+
